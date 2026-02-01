@@ -1,16 +1,83 @@
-# React + Vite
+## Employee Management System (EMS)
+A full-stack MERN (MongoDB, Express, React, Node.js) application designed to manage employee records, leave applications, and departmental structures. It features a dual-dashboard system for Admins and Employees.
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Features
+Admin Dashboard
+### Management:
+Add, edit, and delete employees and departments.
 
-Currently, two official plugins are available:
+### Leave Approval: 
+View all employee leave requests with the ability to Approve or Reject.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+### Summary:
+View real-time statistics of total employees, departments, and leave statuses.
 
-## React Compiler
+### Employee Dashboard
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### Leave Application:
+Apply for Sick, Casual, or Annual leave.
 
-## Expanding the ESLint configuration
+### History:
+Track the status of previous leave applications.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### Personal Stats: 
+View personal summary cards for pending and approved leaves.
+
+ ### Tech Stack
+### Frontend:
+React.js, Tailwind CSS, Axios, React Router.
+
+### Backend:
+Node.js, Express.js.
+
+### Database:
+MongoDB (with Mongoose ODM).
+
+### Authentication:
+JSON Web Tokens (JWT) & Bcrypt for password hashing.
+
+## Installation & Setup
+1. Clone the Repository
+Bash
+git clone https://github.com/your-username/ems-mern.git
+cd ems-mern
+2. Backend Setup
+Navigate to the server folder: cd server
+
+Install dependencies: npm install
+
+Create a .env file and add your credentials:
+
+Code snippet
+PORT=3000
+MONGODB_URI=your_mongodb_connection_string
+JWT_KEY=your_secret_key
+Start the server: npm run dev (or node index.js)
+
+3. Frontend Setup
+Navigate to the frontend folder: cd frontend
+
+Install dependencies: npm install
+
+Start the React development server: npm run dev
+
+ API Endpoints (Quick Reference)
+Authentication
+POST /api/auth/login - User login.
+
+GET /api/auth/verify - Verify JWT and return user session data.
+
+Leaves
+POST /api/leave/add - Submit a new leave request.
+
+GET /api/leave - (Admin) Get all leave requests.
+
+GET /api/leave/:id - (Employee) Get leave history for a specific employee.
+
+PATCH /api/leave/:id - (Admin) Approve/Reject a leave.
+
+ 
+
+Admin Dashboard	Employee Dashboard
+Contributing
+Contributions are welcome! If you have suggestions for improvements or new features, feel free to open an issue or submit a pull request.
