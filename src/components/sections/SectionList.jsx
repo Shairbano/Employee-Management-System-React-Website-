@@ -123,6 +123,12 @@ const SectionList = () => {
                     </div>
                 ))
             )}
+            <button 
+                onClick={() => navigate('/admin-dashboard')}
+                className="mt-8 text-gray-500 hover:text-black font-semibold flex items-center gap-2"
+            >
+                ← Back to Dashboard
+            </button>
         </div>
     );
 };

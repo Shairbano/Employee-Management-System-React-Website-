@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const LeavesApproval = () => {
     const [leaves, setLeaves] = useState([]);
+    const navigate = useNavigate();
 
     const fetchLeaves = async () => {
         const res = await axios.get('http://localhost:3000/api/leave', {
@@ -25,6 +27,7 @@ const LeavesApproval = () => {
     };
 
     return (
+        <div>
         <div className="p-6">
             <h3 className="text-2xl font-bold mb-4">Leave Requests</h3>
             <table className="w-full bg-white shadow-md rounded">
@@ -56,6 +59,13 @@ const LeavesApproval = () => {
                     ))}
                 </tbody>
             </table>
+        </div>
+        <button 
+                onClick={() => navigate('/admin-dashboard/')}
+                className="mt-8 text-gray-500 hover:text-black font-semibold flex items-center gap-2"
+            >
+                ← Back to Dashboard
+            </button>
         </div>
     );
 };

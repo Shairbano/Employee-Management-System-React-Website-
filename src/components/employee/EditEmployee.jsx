@@ -103,6 +103,7 @@ const EditEmployee = () => {
     };
 
     return (
+        <div>
         <div className="max-w-4xl mx-auto mt-10 p-8 bg-white shadow-md border rounded">
             <h2 className="text-2xl font-bold mb-6 text-gray-800">Edit Employee</h2>
             <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -174,6 +175,14 @@ const EditEmployee = () => {
                     Update Employee
                 </button>
             </form>
+            
+        </div>
+        <button 
+                onClick={() => navigate('/admin-dashboard/employees')}
+                className="mt-8 text-gray-500 hover:text-black font-semibold flex items-center gap-2"
+            >
+                ← Back to Employees Section
+            </button>
         </div>
     );
 };

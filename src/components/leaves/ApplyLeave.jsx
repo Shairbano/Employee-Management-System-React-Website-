@@ -37,6 +37,7 @@ const ApplyLeave = () => {
     };
 
     return (
+        <div>
         <div className="max-w-md mx-auto mt-10 p-6 bg-white shadow-md rounded">
             <h2 className="text-xl font-bold mb-4">Apply for Leave</h2>
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -58,6 +59,13 @@ const ApplyLeave = () => {
                 <textarea name="reason" placeholder="Reason" onChange={handleChange} className="w-full border p-2 rounded" rows="4" required></textarea>
                 <button type="submit" className="w-full bg-teal-600 text-white py-2 rounded font-bold">Submit Request</button>
             </form>
+        </div>
+         <button 
+                onClick={() => navigate('/employee-dashboard')}
+                className="mt-8 text-gray-500 hover:text-black font-semibold flex items-center gap-2"
+            >
+                ← Back to Dashboard
+            </button>
         </div>
     );
 };

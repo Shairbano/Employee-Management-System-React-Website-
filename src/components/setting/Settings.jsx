@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const Setting = () => {
+    const navigate = useNavigate();
     const [passwords, setPasswords] = useState({ oldPassword: '', newPassword: '', confirmPassword: '' });
     const [msg, setMsg] = useState("");
 
@@ -34,6 +36,7 @@ const handleSubmit = async (e) => {
     }
 };
 return (
+    <div>
     <div className="max-w-md mx-auto mt-10 p-6 bg-white shadow-md rounded">
         <h2 className="text-xl font-bold mb-4">Change Password</h2>
         {msg && <p className="text-green-500 mb-2">{msg}</p>}
@@ -71,6 +74,13 @@ return (
                 Update Password
             </button>
         </form>
+    </div>
+    <button 
+                onClick={() => navigate('/admin-dashboard/')}
+                className="mt-8 text-gray-500 hover:text-black font-semibold flex items-center gap-2"
+            >
+                ← Back to Dashboard
+            </button>
     </div>
 );
 };

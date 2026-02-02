@@ -85,6 +85,7 @@ const ChangeProfile = () => {
     if (loading) return <div className="text-center mt-10 text-teal-600 font-bold">Loading Profile...</div>;
 
     return (
+        <div>
         <div className="max-w-4xl mx-auto mt-10 p-6 bg-white shadow-lg rounded-lg border">
             <h2 className="text-2xl font-bold mb-6 text-teal-800 border-b pb-2">Edit My Profile</h2>
             <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -147,6 +148,13 @@ const ChangeProfile = () => {
                     Save Changes
                 </button>
             </form>
+        </div>
+        <button 
+                onClick={() => navigate('/employee-dashboard')}
+                className="mt-8 text-gray-500 hover:text-black font-semibold flex items-center gap-2"
+            >
+                ← Back to Dashboard
+            </button>
         </div>
     );
 };

@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/authContext';
 
 const LeaveHistory = () => {
     const [leaves, setLeaves] = useState([]);
     const { user } = useAuth();
+    const navigate = useNavigate();
+     
 
     useEffect(() => {
         const fetchHistory = async () => {
@@ -23,6 +26,7 @@ const LeaveHistory = () => {
     }, [user]);
 
     return (
+        <div>
         <div className="p-6">
             <h3 className="text-2xl font-bold mb-4">My Leave History</h3>
             <table className="w-full bg-white shadow-md rounded overflow-hidden">
@@ -47,6 +51,13 @@ const LeaveHistory = () => {
                     ))}
                 </tbody>
             </table>
+        </div>
+        <button 
+                onClick={() => navigate('/employee-dashboard')}
+                className="mt-8 text-gray-500 hover:text-black font-semibold flex items-center gap-2"
+            >
+                ← Back to Dashboard
+            </button>
         </div>
     );
 };
