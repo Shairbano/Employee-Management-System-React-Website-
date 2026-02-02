@@ -1,14 +1,17 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 const SectionList = () => {
     const [sections, setSections] = useState([]);
-    const [searchTerm, setSearchTerm] = useState("");
+    const [loading, setLoading] = useState(false);
+    const [filterSections, setFilterSections] = useState([]);
+    const [error, setError] = useState(null);
     const navigate = useNavigate();
 
-    // Use useCallback to memoize the function and prevent unnecessary re-renders
     const fetchSections = useCallback(async () => {
+        setLoading(true);
+        setError(null);
         try {
             const token = localStorage.getItem('token');
             const response = await axios.get('http://localhost:3000/api/section', {
@@ -16,18 +19,18 @@ const SectionList = () => {
             });
             if (response.data.success) {
                 setSections(response.data.sections);
+                setFilterSections(response.data.sections);
             }
-        } catch (error) { 
-            console.error("Fetch Error:", error); 
+        } catch (err) {
+            setError("Failed to load sections. Please check your server connection.");
+            console.error("Fetch Error:", err);
+        } finally {
+            setLoading(false);
         }
     }, []);
 
-    // Fixed the useEffect to call the function safely
     useEffect(() => {
-        const fetchData = async () => {
-            await fetchSections();
-        };
-        fetchData();
+        fetchSections();
     }, [fetchSections]);
 
     const handleDelete = async (id) => {
@@ -46,86 +49,92 @@ const SectionList = () => {
         }
     };
 
-    const filteredSections = sections.filter(sec => 
-        sec.section_name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-
-    const groupedSections = filteredSections.reduce((acc, sec) => {
-        const deptName = sec.department?.dep_name || "Unassigned";
-        if (!acc[deptName]) acc[deptName] = [];
-        acc[deptName].push(sec);
-        return acc;
-    }, {});
+    const handleSearch = (e) => {
+        const term = e.target.value.toLowerCase();
+        const filtered = sections.filter(sec => 
+            sec.section_name.toLowerCase().includes(term) || 
+            (sec.department?.dep_name || "").toLowerCase().includes(term)
+        );
+        setFilterSections(filtered);
+    };
 
     return (
         <div className="p-6">
-            <h3 className="text-3xl font-bold text-center mb-6">Manage Sections</h3>
-            
+            <div className="text-center mb-6">
+                <h3 className="text-3xl font-bold text-gray-800">Manage Sections</h3>
+            </div>
+
+            {error && (
+                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4 text-center">
+                    {error}
+                </div>
+            )}
+
             <div className="flex justify-between items-center mb-6">
                 <input 
                     type="text" 
-                    placeholder="Search Section..." 
-                    className="px-4 py-2 border rounded outline-teal-500 w-64 shadow-sm"
-                    onChange={(e) => setSearchTerm(e.target.value)}
+                    placeholder="Search Section or Dept..." 
+                    className="px-4 py-2 border rounded-md focus:ring-2 focus:ring-teal-500 outline-none w-64 shadow-sm"
+                    onChange={handleSearch}
                 />
                 <Link to="/admin-dashboard/add-section" className="px-5 py-2 bg-teal-600 text-white rounded-md font-semibold hover:bg-teal-700 transition-all">
                     Add New Section
                 </Link>
             </div>
 
-            {Object.keys(groupedSections).length === 0 ? (
-                <div className="text-center py-10 border-2 border-dashed rounded-lg text-gray-400">
-                    No sections found matching your search.
-                </div>
-            ) : (
-                Object.keys(groupedSections).map((dept) => (
-                    <div key={dept} className="mb-10 shadow-sm border rounded-lg overflow-hidden">
-                        <div className="bg-teal-700 text-white px-6 py-3 font-bold text-lg flex justify-between items-center">
-                            <span>{dept}</span>
-                            <span className="text-xs bg-white text-teal-800 px-3 py-1 rounded-full uppercase tracking-wider">
-                                {groupedSections[dept].length} Total
-                            </span>
-                        </div>
-
-                        <table className="w-full text-sm text-left text-gray-500">
-                            <thead className="bg-gray-50 text-gray-700 uppercase text-xs border-b">
-                                <tr>
-                                    <th className="px-6 py-3">No</th>
-                                    <th className="px-6 py-3 w-1/3">Section Name</th>
-                                    <th className="px-6 py-3">Description</th>
-                                    <th className="px-6 py-3 text-center">Action</th>
+            <div className="overflow-x-auto shadow-lg rounded-lg border">
+                <table className="w-full text-sm text-left text-gray-600">
+                    <thead className="text-xs text-white uppercase bg-teal-600">
+                        <tr>
+                            <th className="px-6 py-4">No</th>
+                            <th className="px-6 py-4">Section Name</th>
+                            <th className="px-6 py-4">Department</th>
+                            <th className="px-6 py-4 text-center">Employees</th>
+                            <th className="px-6 py-4">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {loading ? (
+                            <tr><td colSpan="5" className="text-center py-10">Loading...</td></tr>
+                        ) : filterSections.length === 0 ? (
+                            <tr><td colSpan="5" className="text-center py-10 text-gray-400">No sections found.</td></tr>
+                        ) : (
+                            filterSections.map((sec, index) => (
+                                <tr key={sec._id} className="bg-white border-b hover:bg-gray-50 transition-colors">
+                                    <td className="px-6 py-4">{index + 1}</td>
+                                    <td className="px-6 py-4 font-semibold text-gray-900">{sec.section_name}</td>
+                                    <td className="px-6 py-4 text-gray-700">
+                                        {/* CHANGE: Removed box styling, made it simple text */}
+                                        {sec.department?.dep_name || "Unassigned"}
+                                    </td>
+                                    <td className="px-6 py-4 text-center font-bold text-teal-700">
+                                        {/* CHANGE: Fallback to length of employees array if employeeCount isn't set */}
+                                        {sec.employeeCount ?? (sec.employees?.length || 0)}
+                                    </td>
+                                    <td className="px-6 py-4 flex gap-3">
+                                        <button 
+                                            onClick={() => navigate(`/admin-dashboard/sections/edit/${sec._id}`)} 
+                                            className="bg-blue-500 text-white px-3 py-1 rounded-md cursor-pointer hover:bg-blue-600 transition-colors"
+                                        >
+                                            Edit
+                                        </button>
+                                        <button 
+                                            onClick={() => handleDelete(sec._id)} 
+                                            className="bg-red-500 text-white px-3 py-1 rounded-md cursor-pointer hover:bg-red-600 transition-colors"
+                                        >
+                                            Delete
+                                        </button>
+                                    </td>
                                 </tr>
-                            </thead>
-                            <tbody>
-                                {groupedSections[dept].map((sec, index) => (
-                                    <tr key={sec._id} className="bg-white border-b hover:bg-gray-50 transition-colors">
-                                        <td className="px-6 py-4">{index + 1}</td>
-                                        <td className="px-6 py-4 font-semibold text-gray-900">{sec.section_name}</td>
-                                        <td className="px-6 py-4 text-gray-600 italic">{sec.description || "—"}</td>
-                                        <td className="px-6 py-4 flex justify-center gap-6">
-                                            <button 
-                                                onClick={() => navigate(`/admin-dashboard/sections/edit/${sec._id}`)} 
-                                                className="bg-blue-500 text-white px-3 py-1 rounded-md cursor-pointer hover:bg-blue-600 "
-                                            >
-                                                EDIT
-                                            </button>
-                                            <button 
-                                                onClick={() => handleDelete(sec._id)} 
-                                                className="bg-red-500 text-white px-3 py-1 rounded-md cursor-pointer hover:bg-red-600"
-                                            >
-                                                DELETE
-                                            </button>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                ))
-            )}
+                            ))
+                        )}
+                    </tbody>
+                </table>
+            </div>
+
             <button 
                 onClick={() => navigate('/admin-dashboard')}
-                className="mt-8 text-gray-500 hover:text-black font-semibold flex items-center gap-2"
+                className="mt-8 text-gray-500 hover:text-black font-semibold flex items-center gap-2 transition-colors"
             >
                 ← Back to Dashboard
             </button>

@@ -108,10 +108,10 @@ const DepartmentList = () => {
                 </table>
             </div>
              <button 
-                onClick={() => navigate('/admin-dashboard')}
+                onClick={() => navigate('/admin-dashboard/departments')}
                 className="mt-8 text-gray-500 hover:text-black font-semibold flex items-center gap-2"
             >
-                ← Back to Dashboard
+                ← Back to Department
             </button>
         </div>
     );
