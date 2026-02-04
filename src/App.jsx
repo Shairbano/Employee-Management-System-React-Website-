@@ -5,7 +5,7 @@ import AdminDashboard from './pages/AdminDashboard'
 import PrivateRoutes from './utils/PrivateRoutes'
 import RoleBasedRoutes from './utils/roleBasedRoutes'
 import AdminSummary from './components/Dashboards/AdminSummary'
-import EmployeeSummary from './components/Dashboards/EmployeeSummary' // Ensure this is imported
+import EmployeeSummary from './components/Dashboards/EmployeeSummary'
 import DepartmentList from './components/departments/DepartmentList'
 import AddDepartment from './components/departments/AddDepartment'
 import EditDepartment from './components/departments/EditDepartment'
@@ -21,18 +21,20 @@ import LeavesApproval from './components/leaves/LeavesApproval'
 import Setting from './components/setting/Settings' 
 import ForgotPassword from './components/ForgotPassword'
 
-
 import EmployeeDashboard from './pages/EmployeeDashboard'
 import ApplyLeave from './components/leaves/ApplyLeave'
 import LeaveHistory from './components/leaves/LeaveHistory'
 import ChangeProfile from './components/setting/ChangeProfile'
-import EmployeeSetting from './components/setting/EmployeeSetting';
- 
+import EmployeeSetting from './components/setting/EmployeeSetting'
+
+// ATTENDANCE IMPORTS
+import Attendance from './components/attendence/Attendance'
+import AttendanceHistory from './components/attendence/AttendanceHistory' 
+
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Redirect empty path to login */}
         <Route path="/" element={<Navigate to="/login" />} />
         <Route path="/login" element={<Login />} />
 
@@ -48,6 +50,10 @@ function App() {
           }
         >
           <Route index element={<AdminSummary />} />
+          
+          {/* Attendance Routes */}
+          <Route path="attendance" element={<Attendance />} />
+          <Route path="attendance-history" element={<AttendanceHistory />} />
           
           {/* Departments */}
           <Route path="departments" element={<DepartmentList />} />
@@ -65,8 +71,9 @@ function App() {
           <Route path="add-employee" element={<AddEmployee />} />
           <Route path="employees/edit/:id" element={<EditEmployee />} />
           <Route path="employees/:id" element={<ViewEmployee />} />
-          {/* Leaves*/}
-          <Route path="leaves" element={<LeavesApproval/>}/>
+          
+          {/* Leaves */}
+          <Route path="leaves" element={<LeavesApproval />} />
           
           {/* Settings */}
           <Route path="setting" element={<Setting />} />
@@ -84,18 +91,12 @@ function App() {
           }
         >
           <Route index element={<EmployeeSummary />} />
-          {/*Leaves */}
-          <Route path='apply-leave' element={<ApplyLeave/>}/>
-          <Route path='leave-history' element= {<LeaveHistory/>}/>
-          {/*Settings */}
-          <Route path='change-profile/:id' element={<ChangeProfile/>}/>
-          
-          <Route path='change-password' element ={<EmployeeSetting/>}/>
-
-          
+          <Route path='apply-leave' element={<ApplyLeave />} />
+          <Route path='leave-history' element={<LeaveHistory />} />
+          <Route path='change-profile/:id' element={<ChangeProfile />} />
+          <Route path='change-password' element={<EmployeeSetting />} />
         </Route>
 
-        {/* Catch-all Route */}
         <Route path="*" element={<Navigate to="/login" />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
       </Routes>
@@ -103,4 +104,4 @@ function App() {
   )
 }
 
-export default App
+export default App;
