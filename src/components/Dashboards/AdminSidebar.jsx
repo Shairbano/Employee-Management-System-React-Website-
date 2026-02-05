@@ -16,31 +16,38 @@ import {
 
 const AdminSidebar = () => {
   const [isDeptOpen, setIsDeptOpen] = useState(false);
-  const [isAttendanceOpen, setIsAttendanceOpen] = useState(false); // New State
+  const [isAttendanceOpen, setIsAttendanceOpen] = useState(false);
   const [pendingCount, setPendingCount] = useState(0);
+  const [attendanceMissing, setAttendanceMissing] = useState(false); // New State
 
   useEffect(() => {
-    const fetchPending = async () => {
+    const fetchData = async () => {
       try {
-        const res = await axios.get('http://localhost:3000/api/leave', {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-          },
-        });
+        const token = localStorage.getItem('token');
+        const headers = { Authorization: `Bearer ${token}` };
 
-        if (res.data.success) {
-          const count = res.data.leaves.filter(
-            (leave) => leave.status === 'Pending'
-          ).length;
+        // 1. Fetch Pending Leaves
+        const leaveRes = await axios.get('http://localhost:3000/api/leave', { headers });
+        if (leaveRes.data.success) {
+          const count = leaveRes.data.leaves.filter(l => l.status === 'Pending').length;
           setPendingCount(count);
+        }
+
+        // 2. Fetch Today's Attendance Status
+        const today = new Date().toISOString().split('T')[0];
+        const attRes = await axios.get(`http://localhost:3000/api/attendance/history?date=${today}`, { headers });
+        
+        if (attRes.data.success) {
+          // If records array is empty, it means attendance hasn't been taken yet
+          setAttendanceMissing(attRes.data.records.length === 0);
         }
       } catch (error) {
         console.error('Sidebar fetch error:', error);
       }
     };
 
-    fetchPending();
-    const interval = setInterval(fetchPending, 30000);
+    fetchData();
+    const interval = setInterval(fetchData, 30000);
     return () => clearInterval(interval);
   }, []);
 
@@ -50,21 +57,15 @@ const AdminSidebar = () => {
 
   const subLinkClass = ({ isActive }) =>
     `flex items-center space-x-4 py-2 px-4 rounded ml-6 transition-colors
-     ${
-       isActive
-         ? 'text-teal-400 font-bold'
-         : 'text-gray-400 hover:text-white hover:bg-gray-700 text-sm'
-     }`;
+     ${isActive ? 'text-teal-400 font-bold' : 'text-gray-400 hover:text-white hover:bg-gray-700 text-sm'}`;
 
   return (
     <div className="bg-gray-800 text-white h-screen fixed left-0 top-0 w-64 overflow-y-auto z-40">
-      
       <div className="bg-teal-600 h-12 flex items-center justify-center">
         <h3 className="text-2xl font-bold">EMS</h3>
       </div>
 
       <div className="px-4 space-y-1 mt-4">
-
         {/* Dashboard */}
         <NavLink to="/admin-dashboard" className={linkClass} end>
           <div className="flex items-center space-x-4">
@@ -79,32 +80,28 @@ const AdminSidebar = () => {
             onClick={() => setIsAttendanceOpen(!isAttendanceOpen)}
             className="w-full flex items-center justify-between py-2.5 px-4 rounded text-gray-300 hover:bg-gray-700 transition-colors"
           >
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-4 relative">
               <FaClipboardCheck />
               <span>Attendance</span>
+              {/* Notification Dot for Attendance */}
+              {attendanceMissing && (
+                <span className="absolute -top-1 -left-1 flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                </span>
+              )}
             </div>
-            {isAttendanceOpen ? (
-              <FaChevronDown className="text-xs" />
-            ) : (
-              <FaChevronRight className="text-xs" />
-            )}
+            {isAttendanceOpen ? <FaChevronDown className="text-xs" /> : <FaChevronRight className="text-xs" />}
           </button>
 
           {isAttendanceOpen && (
             <div className="mt-1 space-y-1 bg-gray-900/50 rounded-b-md">
-              <NavLink
-                to="/admin-dashboard/attendance"
-                className={subLinkClass}
-                end
-              >
-                <div className="w-1.5 h-1.5 rounded-full bg-gray-500"></div>
+              <NavLink to="/admin-dashboard/attendance" className={subLinkClass} end>
+                <div className={`w-1.5 h-1.5 rounded-full ${attendanceMissing ? 'bg-red-500 animate-pulse' : 'bg-gray-500'}`}></div>
                 <span>Mark Attendance</span>
               </NavLink>
 
-              <NavLink
-                to="/admin-dashboard/attendance-history"
-                className={subLinkClass}
-              >
+              <NavLink to="/admin-dashboard/attendance-history" className={subLinkClass}>
                 <FaHistory className="text-xs" />
                 <span>Attendance History</span>
               </NavLink>
@@ -113,6 +110,7 @@ const AdminSidebar = () => {
         </div>
 
         {/* Departments Dropdown Section */}
+        {/* ... (Same as your original code) ... */}
         <div>
           <button
             onClick={() => setIsDeptOpen(!isDeptOpen)}
@@ -122,25 +120,18 @@ const AdminSidebar = () => {
               <FaBuilding />
               <span>Departments</span>
             </div>
-            {isDeptOpen ? (
-              <FaChevronDown className="text-xs" />
-            ) : (
-              <FaChevronRight className="text-xs" />
-            )}
+            {isDeptOpen ? <FaChevronDown className="text-xs" /> : <FaChevronRight className="text-xs" />}
           </button>
-
           {isDeptOpen && (
             <div className="mt-1 space-y-1 bg-gray-900/50 rounded-b-md">
               <NavLink to="/admin-dashboard/departments" className={subLinkClass} end>
                 <div className="w-1.5 h-1.5 rounded-full bg-gray-500"></div>
                 <span>All Departments</span>
               </NavLink>
-
               <NavLink to="/admin-dashboard/sections" className={subLinkClass}>
                 <FaLayerGroup className="text-xs" />
                 <span>Sections</span>
               </NavLink>
-
               <NavLink to="/admin-dashboard/employees" className={subLinkClass}>
                 <FaUsers className="text-xs" />
                 <span>Employees</span>
@@ -170,7 +161,6 @@ const AdminSidebar = () => {
             <span>Settings</span>
           </div>
         </NavLink>
-
       </div>
     </div>
   );
