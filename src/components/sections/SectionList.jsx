@@ -49,10 +49,11 @@ const SectionList = () => {
         }
     };
 
+    // --- UPDATED SEARCH LOGIC ---
     const handleSearch = (e) => {
         const term = e.target.value.toLowerCase();
         const filtered = sections.filter(sec => 
-            sec.section_name.toLowerCase().includes(term) || 
+            (sec.section_name || "").toLowerCase().includes(term) || 
             (sec.department?.dep_name || "").toLowerCase().includes(term)
         );
         setFilterSections(filtered);
@@ -73,7 +74,7 @@ const SectionList = () => {
             <div className="flex justify-between items-center mb-6">
                 <input 
                     type="text" 
-                    placeholder="Search Section or Dept..." 
+                    placeholder="Search by Section or Dept..." // Updated Placeholder
                     className="px-4 py-2 border rounded-md focus:ring-2 focus:ring-teal-500 outline-none w-64 shadow-sm"
                     onChange={handleSearch}
                 />
@@ -104,11 +105,9 @@ const SectionList = () => {
                                     <td className="px-6 py-4">{index + 1}</td>
                                     <td className="px-6 py-4 font-semibold text-gray-900">{sec.section_name}</td>
                                     <td className="px-6 py-4 text-gray-700">
-                                        {/* CHANGE: Removed box styling, made it simple text */}
                                         {sec.department?.dep_name || "Unassigned"}
                                     </td>
                                     <td className="px-6 py-4 text-center font-bold text-teal-700">
-                                        {/* CHANGE: Fallback to length of employees array if employeeCount isn't set */}
                                         {sec.employeeCount ?? (sec.employees?.length || 0)}
                                     </td>
                                     <td className="px-6 py-4 flex gap-3">

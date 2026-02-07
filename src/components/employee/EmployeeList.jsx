@@ -5,7 +5,7 @@ import axios from 'axios';
 const EmployeeList = () => {
     const [employees, setEmployees] = useState([]);
     const [loading, setLoading] = useState(false);
-    const [searchTerm, setSearchTerm] = useState(""); // State for search
+    const [searchTerm, setSearchTerm] = useState(""); 
     const navigate = useNavigate();
 
     const fetchEmployees = async () => {
@@ -44,11 +44,15 @@ const EmployeeList = () => {
         }
     };
 
-    // Filter employees based on search term (Name or Employee ID)
-    const filteredEmployees = employees.filter(emp => 
-        emp.userId?.name.toLowerCase().includes(searchTerm.toLowerCase()) 
-        
-    );
+    // --- ONLY CHANGE IS HERE ---
+    const filteredEmployees = employees.filter(emp => {
+        const term = searchTerm.toLowerCase();
+        return (
+            (emp.userId?.name || "").toLowerCase().includes(term) || 
+            (emp.department?.dep_name || "").toLowerCase().includes(term) ||
+            (emp.section?.section_name || "").toLowerCase().includes(term)
+        );
+    });
 
     return (
         <div className="p-6">
@@ -58,7 +62,7 @@ const EmployeeList = () => {
             <div className="flex justify-between items-center mb-6">
                 <input 
                     type="text" 
-                    placeholder="Search by Name" 
+                    placeholder="Search by Name, Dept, or Section" // Updated placeholder
                     className="px-4 py-2 border rounded-md outline-none w-64 focus:ring-2 focus:ring-teal-500"
                     onChange={(e) => setSearchTerm(e.target.value)} 
                 />
@@ -74,7 +78,7 @@ const EmployeeList = () => {
                             <th className="px-6 py-4">S.No</th>
                             <th className="px-6 py-4">Name</th>
                             <th className="px-6 py-4">Department</th>
-                            <th className="px-6 py-4">Section</th> {/* NEW COLUMN */}
+                            <th className="px-6 py-4">Section</th>
                             <th className="px-6 py-4">Action</th>
                         </tr>
                     </thead>
@@ -87,7 +91,6 @@ const EmployeeList = () => {
                                     <td className="px-6 py-4">{index + 1}</td>
                                     <td className="px-6 py-4">
                                         <div className="flex items-center gap-3">
-                                            {/* Small circular profile preview */}
                                             <img src={emp.image} alt="" className="w-8 h-8 rounded-full object-cover border" />
                                             <span className="font-semibold text-gray-900">{emp.userId?.name || "N/A"}</span>
                                         </div>
@@ -95,7 +98,6 @@ const EmployeeList = () => {
                                     <td className="px-6 py-4 font-medium">
                                         {emp.department ? emp.department.dep_name : "N/A"}
                                     </td>
-                                    {/* SEPARATE SECTION COLUMN */}
                                     <td className="px-6 py-4">
                                         <span className="bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs font-semibold">
                                             {emp.section ? emp.section.section_name : "No Section"}
