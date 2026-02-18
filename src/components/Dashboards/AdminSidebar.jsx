@@ -18,7 +18,7 @@ const AdminSidebar = () => {
   const [isDeptOpen, setIsDeptOpen] = useState(false);
   const [isAttendanceOpen, setIsAttendanceOpen] = useState(false);
   const [pendingCount, setPendingCount] = useState(0);
-  const [attendanceMissing, setAttendanceMissing] = useState(false); // New State
+  const [attendanceMissing, setAttendanceMissing] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -33,13 +33,19 @@ const AdminSidebar = () => {
           setPendingCount(count);
         }
 
-        // 2. Fetch Today's Attendance Status
+        // 2. Logic to check if ALL employees are marked for today
         const today = new Date().toISOString().split('T')[0];
-        const attRes = await axios.get(`http://localhost:3000/api/attendance/history?date=${today}`, { headers });
-        
-        if (attRes.data.success) {
-          // If records array is empty, it means attendance hasn't been taken yet
-          setAttendanceMissing(attRes.data.records.length === 0);
+        const [empRes, attRes] = await Promise.all([
+          axios.get('http://localhost:3000/api/employee', { headers }),
+          axios.get(`http://localhost:3000/api/attendance/fetch?date=${today}`, { headers })
+        ]);
+
+        if (empRes.data.success && attRes.data.success) {
+          const totalEmployees = empRes.data.employees.length;
+          const markedAttendance = attRes.data.records ? attRes.data.records.length : 0;
+          
+          // Red dot stays true as long as records count is less than total employees
+          setAttendanceMissing(markedAttendance < totalEmployees);
         }
       } catch (error) {
         console.error('Sidebar fetch error:', error);
@@ -47,7 +53,7 @@ const AdminSidebar = () => {
     };
 
     fetchData();
-    const interval = setInterval(fetchData, 30000);
+    const interval = setInterval(fetchData, 30000); // Auto-refresh every 30 seconds
     return () => clearInterval(interval);
   }, []);
 
@@ -83,7 +89,7 @@ const AdminSidebar = () => {
             <div className="flex items-center space-x-4 relative">
               <FaClipboardCheck />
               <span>Attendance</span>
-              {/* Notification Dot for Attendance */}
+              {/* Main Notification Dot for Attendance */}
               {attendanceMissing && (
                 <span className="absolute -top-1 -left-1 flex h-2 w-2">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
@@ -110,7 +116,6 @@ const AdminSidebar = () => {
         </div>
 
         {/* Departments Dropdown Section */}
-        {/* ... (Same as your original code) ... */}
         <div>
           <button
             onClick={() => setIsDeptOpen(!isDeptOpen)}
@@ -142,14 +147,19 @@ const AdminSidebar = () => {
 
         {/* Leaves */}
         <NavLink to="/admin-dashboard/leaves" className={linkClass}>
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-4 relative">
             <FaCalendarAlt />
             <span>Leaves</span>
+            {pendingCount > 0 && (
+              <span className="absolute -top-1 -left-1 flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
+              </span>
+            )}
           </div>
           {pendingCount > 0 && (
-            <span className="flex h-2 w-2 relative">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
+            <span className="bg-teal-500 text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+              {pendingCount}
             </span>
           )}
         </NavLink>
